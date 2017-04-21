@@ -366,6 +366,32 @@ static int i915_getparam(struct drm_device *dev, void *data,
 	return 0;
 }
 
+static int i915_set_reset_strategy_ioctl(struct drm_device *dev, void *data,
+					 struct drm_file *file)
+{
+	struct drm_i915_reset_strategy *args = data;
+	struct drm_i915_private *dev_priv = to_i915(dev);
+
+	mutex_lock(&dev->struct_mutex);
+	dev_priv->reset_strategy = args->reset_strategy;
+	mutex_unlock(&dev->struct_mutex);
+
+	return 0;
+}
+
+static int i915_get_reset_strategy_ioctl(struct drm_device *dev, void *data,
+					 struct drm_file *file)
+{
+	struct drm_i915_reset_strategy *args = data;
+	struct drm_i915_private *dev_priv = to_i915(dev);
+
+	mutex_lock(&dev->struct_mutex);
+	args->reset_strategy = dev_priv->reset_strategy;
+	mutex_unlock(&dev->struct_mutex);
+
+	return 0;
+}
+
 static int i915_get_bridge_dev(struct drm_i915_private *dev_priv)
 {
 	dev_priv->bridge_dev = pci_get_bus_and_slot(0, PCI_DEVFN(0, 0));
@@ -1202,6 +1228,13 @@ int i915_driver_load(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	dev_priv->drm.pdev = pdev;
 	dev_priv->drm.dev_private = dev_priv;
+
+	/*
+	 * We reset all engines by default. The isolated (per guilty engine) reset
+	 * is an opt-in.
+	 */
+
+	dev_priv->reset_strategy = I915_RESET_ALL_ENGINES;
 
 	ret = pci_enable_device(pdev);
 	if (ret)
@@ -2564,6 +2597,8 @@ static const struct drm_ioctl_desc i915_ioctls[] = {
 	DRM_IOCTL_DEF_DRV(I915_GEM_CONTEXT_GETPARAM, i915_gem_context_getparam_ioctl, DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(I915_GEM_CONTEXT_SETPARAM, i915_gem_context_setparam_ioctl, DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(I915_PERF_OPEN, i915_perf_open_ioctl, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(I915_SET_RESET_STRATEGY, i915_set_reset_strategy_ioctl, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
+	DRM_IOCTL_DEF_DRV(I915_GET_RESET_STRATEGY, i915_get_reset_strategy_ioctl, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
 };
 
 static struct drm_driver driver = {

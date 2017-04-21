@@ -2309,6 +2309,8 @@ struct drm_i915_private {
 	struct i915_suspend_saved_registers regfile;
 	struct vlv_s0ix_state vlv_s0ix_state;
 
+	u32 reset_strategy;
+
 	enum {
 		I915_SAGV_UNKNOWN = 0,
 		I915_SAGV_DISABLED,

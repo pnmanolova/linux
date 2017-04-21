@@ -259,6 +259,8 @@ typedef struct _drm_i915_sarea {
 #define DRM_I915_GEM_CONTEXT_GETPARAM	0x34
 #define DRM_I915_GEM_CONTEXT_SETPARAM	0x35
 #define DRM_I915_PERF_OPEN		0x36
+#define DRM_I915_SET_RESET_STRATEGY 0x37
+#define DRM_I915_GET_RESET_STRATEGY 0x38
 
 #define DRM_IOCTL_I915_INIT		DRM_IOW( DRM_COMMAND_BASE + DRM_I915_INIT, drm_i915_init_t)
 #define DRM_IOCTL_I915_FLUSH		DRM_IO ( DRM_COMMAND_BASE + DRM_I915_FLUSH)
@@ -313,6 +315,8 @@ typedef struct _drm_i915_sarea {
 #define DRM_IOCTL_I915_GEM_CONTEXT_GETPARAM	DRM_IOWR (DRM_COMMAND_BASE + DRM_I915_GEM_CONTEXT_GETPARAM, struct drm_i915_gem_context_param)
 #define DRM_IOCTL_I915_GEM_CONTEXT_SETPARAM	DRM_IOWR (DRM_COMMAND_BASE + DRM_I915_GEM_CONTEXT_SETPARAM, struct drm_i915_gem_context_param)
 #define DRM_IOCTL_I915_PERF_OPEN	DRM_IOW(DRM_COMMAND_BASE + DRM_I915_PERF_OPEN, struct drm_i915_perf_open_param)
+#define DRM_IOCTL_I915_SET_RESET_STRATEGY DRM_IOW (DRM_COMMAND_BASE + DRM_I915_SET_RESET_STRATEGY, struct drm_i915_reset_strategy)
+#define DRM_IOCTL_I915_GET_RESET_STRATEGY DRM_IOR (DRM_COMMAND_BASE + DRM_I915_GET_RESET_STRATEGY, struct drm_i915_reset_strategy)
 
 /* Allow drivers to submit batchbuffers directly to hardware, relying
  * on the security mechanisms provided by hardware.
@@ -1294,6 +1298,20 @@ struct drm_i915_perf_open_param {
 	 * to open.
 	 */
 	__u64 properties_ptr;
+};
+
+#define I915_RESET_ALL_ENGINES 0
+#define I915_RESET_GUILTY_ENGINES 1
+
+struct drm_i915_reset_strategy {
+
+	/**
+	 * The GPU reset strategy. If this is set to I915_RESET_ALL_ENGINES all
+	 * engines will be reset on a GPU reset, this is the default behavior.
+	 * If it's set to I915_RESET_GUILTY_ENGINES only gulty engines will be
+	 * reset.
+	 */
+	__u32 reset_strategy;
 };
 
 /**
